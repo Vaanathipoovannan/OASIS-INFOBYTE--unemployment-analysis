@@ -1,0 +1,77 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+
+data = pd.read_csv("/content/Unemployment_Rate_upto_11_2020.csv")
+
+data.head()
+
+data.columns= ["Region","Date","Frequency",
+               "Estimated Unemployment Rate",
+               "Estimated Employed",
+               "Estimated Labour Participation Rate",
+               "Region","longitude","latitude"]
+
+data.head()
+
+data.describe()
+
+print(data.isnull().sum())
+
+plt.style.use('seaborn-whitegrid')
+plt.figure(figsize=(12, 10))
+sns.heatmap(data.corr())
+plt.show()
+
+data.columns= ["States","Date","Frequency",
+               "Estimated Unemployment Rate","Estimated Employed",
+               "Estimated Labour Participation Rate","Region",
+               "longitude","latitude"]
+plt.title("Indian Unemployment")
+sns.histplot(x="Estimated Employed", hue="Region", data=data)
+plt.show()
+
+plt.figure(figsize=(10, 8))
+plt.title("Indian Unemployment")
+sns.histplot(x="Estimated Unemployment Rate", hue="Region", data=data)
+plt.show()
+
+unemploment = data[["States", "Region", "Estimated Unemployment Rate"]]
+figure = px.sunburst(unemploment, path=["Region", "States"], 
+                     values="Estimated Unemployment Rate", 
+                     width=700, height=700, color_continuous_scale="RdY1Gn", 
+                     title="Unemployment Rate in India")
+figure.show()
+
+sns.pairplot(data)
+
+data.describe()
+
+X = data[['Estimated Unemployment Rate', 'Estimated Employed', 'Estimated Labour Participation Rate',
+       'longitude', 'latitude']]
+
+y = data['Estimated Employed']
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.40)
+
+X_train
+
+from sklearn.linear_model import LinearRegression
+
+lm = LinearRegression()
+
+lm.fit(X_train, y_train)
+
+coeff_data = pd.DataFrame(lm.coef_, X.columns, columns=['Coefficient'])
+
+coeff_data
+
+predictions = lm.predict(X_test)
+
+plt.scatter(y_test, predictions)
+
+sns.distplot((y_test-predictions), bins=50);
